@@ -1,14 +1,15 @@
 from random import randint
-from math import exp, log
+from math import log
+
+from Activation_Class import ActivationClass
 
 
 def generate_weights(x_size, y_size, div=100):
-
     col = []
     for x_idx in range(0, x_size):
         row = []
         for y_idx in range(0, y_size):
-            row.append(randint(-100, 100)/div)
+            row.append(randint(-100, 100) / div)
         col.append(row)
 
     print(col)
@@ -17,14 +18,14 @@ def generate_weights(x_size, y_size, div=100):
 
     return col
 
-def generate_bias(x_size, y_size, hard_value = None, div=100):
 
+def generate_bias(x_size, y_size, hard_value=None, div=100):
     col = []
     for x_idx in range(0, x_size):
         row = []
         for y_idx in range(0, y_size):
             if hard_value is None:
-                row.append(randint(-100, 100)/div)
+                row.append(randint(-100, 100) / div)
             else:
                 row.append(hard_value)
         col.append(row)
@@ -36,16 +37,8 @@ def generate_bias(x_size, y_size, hard_value = None, div=100):
     return col
 
 
-# REF: https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6
-def act_sigmoid(value):
-    return 1/(1+exp(-1*value))
-
-
-def act_relu(value):
-    return max(0, value)
-
-
 def neuron_compute(input_data, weights, bias):
+    Act = ActivationClass.sigmoid
     weight_xy = len(weights), len(weights[0])
 
     Z_col = []
@@ -62,14 +55,14 @@ def neuron_compute(input_data, weights, bias):
     for Z_x_idx in range(0, Z_xy[0]):
         A_row = []
         for Z_y_idx in range(0, Z_xy[1]):
-            A_row.append(act_sigmoid(Z_col[Z_x_idx][Z_y_idx]))
+            A_row.append(Act(Z_col[Z_x_idx][Z_y_idx]))
         A_col.append(A_row)
     return A_col
 
 
-def lf_log_loss(y, p, e = 1E-7):
+def lf_log_loss(y, p, e=1E-7):
     # print("y, p", y, p)
-    return -1 * ((y*log(p+e)) + ((1-y)*(log(1-p+e))))
+    return -1 * ((y * log(p + e)) + ((1 - y) * (log(1 - p + e))))
 
 
 def loss_func(computed, sample):
@@ -84,15 +77,15 @@ def loss_func(computed, sample):
             __tmp = lf_log_loss(computed[comp_x_idx][comp_y_idx], sample[comp_x_idx][comp_y_idx])
             loss_row.append(__tmp)
 
-        loss_row = sum(loss_row)/computed_xy[1]
+        loss_row = sum(loss_row) / computed_xy[1]
         loss_col.append(loss_row)
 
-    loss_col = sum(loss_col)/computed_xy[0]
-            # print("LOG=", __tmp, "----->", computed[comp_x_idx][comp_y_idx], sample[comp_x_idx][comp_y_idx])
+    loss_col = sum(loss_col) / computed_xy[0]
+    # print("LOG=", __tmp, "----->", computed[comp_x_idx][comp_y_idx], sample[comp_x_idx][comp_y_idx])
     return loss_col
 
 
-def forward_propagation(data_input, weights, bias):
+def forward_propagation(data_input, data_output, weights, bias):
     result = []
     for data_idx, input_data in enumerate(data_input):
         input_data_xy = len(input_data), len(input_data[0])
@@ -105,14 +98,16 @@ def forward_propagation(data_input, weights, bias):
                 assert len(ret_y) == 1, "f(x) dimension X did not match to " + str(1)
                 assert len(ret_y[0]) == weight_dim[1], "f(x) dimension Y did not match to " + str(weight_dim[1])
 
-                error_row.append(loss_func(ret_y, sample_data_output[data_idx]))
+                error_row.append(loss_func(ret_y, data_output[data_idx]))
             error_col.append(error_row)
         result.append(error_col)
 
     print("RESULT=", result)
     assert len(result) == len(data_input), "Result count did not match to Sample count " + str(data_input)
-    assert len(result[0]) == len(data_input[0]), "Result dimension X did not match to Sample dimension X" + str(data_input[0])
-    assert len(result[0][0]) == len(data_input[0][0]), "Result dimension Y did not match to Sample dimension Y" + str(data_input[0][0])
+    assert len(result[0]) == len(data_input[0]), "Result dimension X did not match to Sample dimension X" + str(
+        data_input[0])
+    assert len(result[0][0]) == len(data_input[0][0]), "Result dimension Y did not match to Sample dimension Y" + str(
+        data_input[0][0])
 
     return result
 
@@ -149,6 +144,20 @@ def forward_propagation(data_input, weights, bias):
 #
 #
 
+def python_std_libs(data_dict, weight_size):
+    data_input = list(data_dict.keys())
+    data_output = list(data_dict.values())
+
+    ret_weights = generate_weights(weight_size[0], weight_size[1], 1000)
+
+    ret_bias = generate_bias(1, weight_size[1], 3)
+
+    ### FORWARD PROPAGATION ###
+    result = forward_propagation(data_input, data_output, ret_weights, ret_bias)
+    print("Result=", result)
+    ### BACKWARD PROPAGATION ###
+
+
 if __name__ == '__main__':
     """
     Decimal to Binary NN Model
@@ -166,15 +175,5 @@ if __name__ == '__main__':
         ((3,),): [[0,0,0,0,0,0,1,1]]
     }
 
-    sample_data_input = list(sample_data_dict.keys())
-    sample_data_output = list(sample_data_dict.values())
-    print(sample_data_input)
 
-    ret_weights = generate_weights(weight_dim[0], weight_dim[1], 1000)
-
-    ret_bias = generate_bias(1, weight_dim[1], 3)
-
-    ### FORWARD PROPAGATION ###
-    result = forward_propagation(sample_data_input, ret_weights, ret_bias)
-
-    ### BACKWARD PROPAGATION ###
+    python_std_libs(sample_data_dict, weight_dim)
