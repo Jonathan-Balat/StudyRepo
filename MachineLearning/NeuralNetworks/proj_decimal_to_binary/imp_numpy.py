@@ -83,27 +83,34 @@ def forward_propagation_np(data_input, data_output, params):
 
 # ######################################### BACK PROPAGATION #########################################
 def backward_propagation_np(data_input, data_output, params):
-    computed, weights, bias = params['A'], params['weights'], params['bias']
+    computed, weights, bias, alpha = params['A'], params['weights'], params['bias'], params['alpha']
 
-    print(data_input.shape)
-    print(data_output.shape)
-    print(computed.shape)
+    print("X=", data_input.shape)
+    print("Y=", data_output.shape)
+    print("A=", computed.shape)
 
     act_y = computed - data_output
 
-    print("A-Y = ", act_y)
+    dB = np.multiply(1/data_input.shape[0], (computed-data_output))
+    print("dB=", dB.shape)
+    # print("dB=", dB)
 
     dW = np.multiply(1/data_input.shape[0], np.multiply(data_input, (computed - data_output)))
-
-    dB = np.multiply(1/data_input.shape[0], (computed-data_output))
-
-    print("dW=", dW)
-    print("dB=", dB)
-
     print("dW=", dW.shape)
-    print("dB=", dB.shape)
+    # print("dW=", dW)
 
-    return dW, dB
+    weights = weights - np.multiply(alpha, dW)
+    bias = bias - np.multiply(alpha, dB)
+
+    # print("weights =", weights)
+    # print("bias =", bias)
+
+    params['dW'] = dW
+    params['dB'] = dB
+    params['weights'] = weights
+    params['bias'] = bias
+
+    return params
 
 
 def input_processing(data_sample: dict):
@@ -121,26 +128,11 @@ def input_processing(data_sample: dict):
 
     data_output = np.array(list(data_sample.values()))
     data_output = np.reshape(data_output, (4,1,8))
-    #
+
     # print(data_input.shape)
     # print(data_input)
     # print(data_output.shape)
     # print(data_output)
-
-    return False, False
-
-
-def numpy_libs(data_dict, weight_size):
-
-    nn_parameters = {}
-
-    data_input, data_output = input_processing(data_dict)
-
-    data_input = list(data_dict.keys())
-    data_output = list(data_dict.values())
-
-    data_input = np.array(data_input)
-    data_output = np.array(data_output)
 
     # For manipulating Array dimensions
     # data_input = np.stack(data_input)
@@ -154,17 +146,22 @@ def numpy_libs(data_dict, weight_size):
     # print("DATA OUT=", data_output)
     # print("DATA OUT=", data_output.shape)
 
-    # weight_arr = generate_weights_np(weight_size)
-    # bias_arr = generate_bias_np(weight_size)
-    # cost, A = forward_propagation_np(data_input, data_output, weight_arr, bias_arr)
+    return data_input, data_output
+
+
+def numpy_libs(data_dict, weight_size):
+
+    nn_parameters = {'alpha': 0.001}
+
+    data_input, data_output = input_processing(data_dict)
 
     nn_parameters['weights'] = generate_weights_np(weight_size)
     nn_parameters['bias'] = generate_bias_np(weight_size)
-    nn_parameters, cost_dict = forward_propagation_np(data_input, data_output, nn_parameters)
 
+    nn_parameters, cost_dict = forward_propagation_np(data_input, data_output, nn_parameters)
     print("COST=", cost_dict)
 
-    ret = backward_propagation_np(data_input, data_output, nn_parameters)
+    nn_parameters = backward_propagation_np(data_input, data_output, nn_parameters)
     # print("RET=", ret)
 
 
