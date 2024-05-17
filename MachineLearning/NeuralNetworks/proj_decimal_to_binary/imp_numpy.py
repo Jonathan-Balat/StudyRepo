@@ -106,14 +106,41 @@ def backward_propagation_np(data_input, data_output, params):
     return dW, dB
 
 
+def input_processing(data_sample: dict):
+    """
+    dict -> input(1,1,N) and output(1,8,N)
+
+    :param data_sample:
+    :type data_sample:
+    :return:
+    :rtype:
+    """
+
+    data_input = np.array(list(data_sample.keys()))
+    data_input = np.reshape(data_input, (4,1,1))
+
+    data_output = np.array(list(data_sample.values()))
+    data_output = np.reshape(data_output, (4,1,8))
+    #
+    # print(data_input.shape)
+    # print(data_input)
+    # print(data_output.shape)
+    # print(data_output)
+
+    return False, False
+
+
 def numpy_libs(data_dict, weight_size):
+
+    nn_parameters = {}
+
+    data_input, data_output = input_processing(data_dict)
+
     data_input = list(data_dict.keys())
     data_output = list(data_dict.values())
 
     data_input = np.array(data_input)
     data_output = np.array(data_output)
-
-    nn_parameters = {}
 
     # For manipulating Array dimensions
     # data_input = np.stack(data_input)
