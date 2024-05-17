@@ -19,6 +19,6 @@ class ActivationClass:
         return max(0, value)
 
     def delta_relu(self, value):
-        # TODO: Get derivative
-        return False
+
+        return int(value >= 0)
 
