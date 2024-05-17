@@ -37,17 +37,17 @@ def neuron_compute_np(x_input, params):
     weights = params["weights"]
     bias = params["bias"]
 
-    print("weights=", weights.shape)
-    print("x_input=", x_input.shape)
+    # print("weights=", weights.shape)
+    # print("x_input=", x_input.shape)
 
     Z = np.dot(x_input, weights) + bias
-    print("Z=", Z.shape)
+    # print("Z=", Z.shape)
 
     # TODO: Add assertion to get correct size after matrix multiplication
 
     A = Act.sigmoid(Z)
     # print("A=", A)
-    print("A=", A.shape)
+    # print("A=", A.shape)
 
     # TODO: Add assertion to get correct size after matrix computation
 
@@ -57,7 +57,28 @@ def neuron_compute_np(x_input, params):
     return params
 
 
-def cost_function_np(params, sample, cost_dict):
+def neuron_test_np(x_input, params):
+    Act = ActivationClass()
+
+    weights = params["weights"]
+    bias = params["bias"]
+
+    # print("weights=", weights.shape)
+    # print("x_input=", x_input.shape)
+
+    Z = np.dot(x_input, weights) + bias
+    # print("Z=", Z.shape)
+
+    # TODO: Add assertion to get correct size after matrix multiplication
+
+    A = Act.sigmoid(Z)
+    # print("A=", A)
+    # print("A=", A.shape)
+
+    return A
+
+
+def cost_function_np(params, sample):
     compute = params['A']
 
     func_a = np.multiply(sample, np.log(compute))
@@ -65,38 +86,29 @@ def cost_function_np(params, sample, cost_dict):
 
     log_cost = func_a + func_b
     # print("LOGCOST = ", log_cost)
-    print("LOGCOST = ", log_cost.shape)
+    # print("LOGCOST = ", log_cost.shape)
 
-    cost_dict['cost'] = (-1 / compute.shape[0]) * np.sum(log_cost)
+    cost = (-1 / compute.shape[0]) * np.sum(log_cost)
 
-    return cost_dict
-
-
-def forward_propagation_np(data_input, data_output, params):
-    cost_dict = {}
-
-    params = neuron_compute_np(data_input, params)
-    cost_dict = cost_function_np(params, data_output, cost_dict)
-
-    return params, cost_dict
+    return cost
 
 
 # ######################################### BACK PROPAGATION #########################################
 def backward_propagation_np(data_input, data_output, params):
     computed, weights, bias, alpha = params['A'], params['weights'], params['bias'], params['alpha']
 
-    print("X=", data_input.shape)
-    print("Y=", data_output.shape)
-    print("A=", computed.shape)
+    # print("X=", data_input.shape)
+    # print("Y=", data_output.shape)
+    # print("A=", computed.shape)
 
     act_y = computed - data_output
 
     dB = np.multiply(1/data_input.shape[0], (computed-data_output))
-    print("dB=", dB.shape)
+    # print("dB=", dB.shape)
     # print("dB=", dB)
 
     dW = np.multiply(1/data_input.shape[0], np.multiply(data_input, (computed - data_output)))
-    print("dW=", dW.shape)
+    # print("dW=", dW.shape)
     # print("dW=", dW)
 
     weights = weights - np.multiply(alpha, dW)
@@ -151,18 +163,36 @@ def input_processing(data_sample: dict):
 
 def numpy_libs(data_dict, weight_size):
 
-    nn_parameters = {'alpha': 0.001}
+    # Setup
+    nn_parameters = {'alpha': 0.01}
+    cost_dict = {}
 
     data_input, data_output = input_processing(data_dict)
 
     nn_parameters['weights'] = generate_weights_np(weight_size)
     nn_parameters['bias'] = generate_bias_np(weight_size)
 
-    nn_parameters, cost_dict = forward_propagation_np(data_input, data_output, nn_parameters)
-    print("COST=", cost_dict)
+    # Train
+    for iteration in range(0, 500_000):
+        for data_idx in range(0, len(data_input)):
+            x_data = data_input[0]
+            y_data = data_output[0]
+            # Compute and Optimize
 
-    nn_parameters = backward_propagation_np(data_input, data_output, nn_parameters)
-    # print("RET=", ret)
+            nn_parameters = neuron_compute_np(x_data, nn_parameters)
+            cost_dict[data_idx] = cost_function_np(nn_parameters, y_data)
+
+            # print("COST=", cost_dict)
+        # print("COSTave=", sum(list(cost_dict.values()))/len(cost_dict.values()))
+        for data_idx in range(0, len(data_input)):
+            x_data = data_input[0]
+            y_data = data_output[0]
+            nn_parameters = backward_propagation_np(x_data, y_data, nn_parameters)
+
+    # Test Existing data
+    for number in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+        binary_result = neuron_test_np(number, nn_parameters)
+        print("\nRESULT -->", number, "-->", binary_result)
 
 
 if __name__ == '__main__':
