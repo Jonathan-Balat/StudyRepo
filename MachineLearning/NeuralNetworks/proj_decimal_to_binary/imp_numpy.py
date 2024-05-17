@@ -72,6 +72,10 @@ def neuron_test_np(x_input, params):
     # TODO: Add assertion to get correct size after matrix multiplication
 
     A = Act.sigmoid(Z)
+    A_min = np.min(A, axis=1)
+    A_max = np.max(A, axis=1)
+
+    print("NORMALIZED", A/(A_max - A_min))
     # print("A=", A)
     # print("A=", A.shape)
 
@@ -136,10 +140,10 @@ def input_processing(data_sample: dict):
     """
 
     data_input = np.array(list(data_sample.keys()))
-    data_input = np.reshape(data_input, (4,1,1))
+    data_input = np.reshape(data_input, (len(data_input),1,1))
 
     data_output = np.array(list(data_sample.values()))
-    data_output = np.reshape(data_output, (4,1,8))
+    data_output = np.reshape(data_output, (len(data_input),1,8))
 
     # print(data_input.shape)
     # print(data_input)
@@ -164,7 +168,7 @@ def input_processing(data_sample: dict):
 def numpy_libs(data_dict, weight_size):
 
     # Setup
-    nn_parameters = {'alpha': 0.01}
+    nn_parameters = {'alpha': 0.05}
     cost_dict = {}
 
     data_input, data_output = input_processing(data_dict)
@@ -173,7 +177,7 @@ def numpy_libs(data_dict, weight_size):
     nn_parameters['bias'] = generate_bias_np(weight_size)
 
     # Train
-    for iteration in range(0, 500_000):
+    for iteration in range(0, 10000):
         for data_idx in range(0, len(data_input)):
             x_data = data_input[0]
             y_data = data_output[0]
@@ -182,18 +186,28 @@ def numpy_libs(data_dict, weight_size):
             nn_parameters = neuron_compute_np(x_data, nn_parameters)
             cost_dict[data_idx] = cost_function_np(nn_parameters, y_data)
 
-            # print("COST=", cost_dict)
-        # print("COSTave=", sum(list(cost_dict.values()))/len(cost_dict.values()))
-        for data_idx in range(0, len(data_input)):
-            x_data = data_input[0]
-            y_data = data_output[0]
             nn_parameters = backward_propagation_np(x_data, y_data, nn_parameters)
+
+        if iteration % 1000 == 0:
+            # print("COST=")
+            # for idx in range(0, len(cost_dict.keys())):
+                # print("\t%d)"%idx, 100*cost_dict.get(idx), "%")
+            print("\tCOSTave=", 100*sum(list(cost_dict.values()))/len(cost_dict.values()), "%")
 
     # Test Existing data
     for number in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+        print("\n", number, ")")
         binary_result = neuron_test_np(number, nn_parameters)
-        print("\nRESULT -->", number, "-->", binary_result)
+        print("-->", binary_result)
 
+
+def __data_bin_generate(max_value=255):
+    data = {}
+    for number in range(0, max_value+1):
+        tmp_inner = [(1 & (number >> idx)) for idx in range(0, 8)]
+        tmp_inner.reverse()
+        data[((number,),)] = [tmp_inner]
+    return data
 
 if __name__ == '__main__':
     """
@@ -204,12 +218,17 @@ if __name__ == '__main__':
         (1,8)*(4,1)
     """
     weight_dim = (1, 8)
-    sample_data_dict = {
-        # (4, 1, 1) : (4, 1, 8)
-        ((0,),): [[0,0,0,0,0,0,0,0]],
-        ((1,),): [[0,0,0,0,0,0,0,1]],
-        ((2,),): [[0,0,0,0,0,0,1,0]],
-        ((3,),): [[0,0,0,0,0,0,1,1]]
-    }
+    # sample_data_dict = {
+    #     # (4, 1, 1) : (4, 1, 8)
+    #     ((1,),): [[0,0,0,0,0,0,0,1]],
+    #     ((2,),): [[0,0,0,0,0,0,1,0]],
+    #     ((3,),): [[0,0,0,0,0,0,1,1]],
+    #     ((4,),): [[0,0,0,0,0,1,0,0]],
+    #     ((5,),): [[0,0,0,0,0,1,0,1]],
+    #     ((6,),): [[0,0,0,0,0,1,1,0]],
+    #     ((7,),): [[0,0,0,0,0,1,1,1]],
+    #     ((8,),): [[0,0,0,0,1,0,0,0]],
+    # }
+    sample_data_dict = __data_bin_generate()
 
     numpy_libs(sample_data_dict, weight_dim)
