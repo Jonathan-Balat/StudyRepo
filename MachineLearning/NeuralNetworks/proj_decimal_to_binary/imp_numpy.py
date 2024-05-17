@@ -31,8 +31,11 @@ def generate_bias_np(dimension, b_as_zeroes=False):
     return b
 
 
-def neuron_compute_np(x_input, weights, bias):
+def neuron_compute_np(x_input, params):
     Act = ActivationClass()
+
+    weights = params["weights"]
+    bias = params["bias"]
 
     print("weights=", weights.shape)
     print("x_input=", x_input.shape)
@@ -43,34 +46,64 @@ def neuron_compute_np(x_input, weights, bias):
     # TODO: Add assertion to get correct size after matrix multiplication
 
     A = Act.sigmoid(Z)
-    print("A=", A)
+    # print("A=", A)
     print("A=", A.shape)
 
     # TODO: Add assertion to get correct size after matrix computation
 
-    return A
+    params['A'] = A
+    params['Z'] = Z
+
+    return params
 
 
-def cost_function_np(compute, sample):
+def cost_function_np(params, sample, cost_dict):
+    compute = params['A']
+
     func_a = np.multiply(sample, np.log(compute))
     func_b = np.multiply((1 - sample), np.log(1 - compute))
 
     log_cost = func_a + func_b
-    print("LOGCOST = ", log_cost)
+    # print("LOGCOST = ", log_cost)
     print("LOGCOST = ", log_cost.shape)
 
-    cost = (-1 / compute.shape[0]) * np.sum(log_cost)
+    cost_dict['cost'] = (-1 / compute.shape[0]) * np.sum(log_cost)
 
-    return cost
+    return cost_dict
 
 
-def forward_propagation_np(data_input, data_output, weights, bias):
-    A = neuron_compute_np(data_input, weights, bias)
-    Y = cost_function_np(A, data_output)
+def forward_propagation_np(data_input, data_output, params):
+    cost_dict = {}
 
-    return Y
+    params = neuron_compute_np(data_input, params)
+    cost_dict = cost_function_np(params, data_output, cost_dict)
+
+    return params, cost_dict
+
 
 # ######################################### BACK PROPAGATION #########################################
+def backward_propagation_np(data_input, data_output, params):
+    computed, weights, bias = params['A'], params['weights'], params['bias']
+
+    print(data_input.shape)
+    print(data_output.shape)
+    print(computed.shape)
+
+    act_y = computed - data_output
+
+    print("A-Y = ", act_y)
+
+    dW = np.multiply(1/data_input.shape[0], np.multiply(data_input, (computed - data_output)))
+
+    dB = np.multiply(1/data_input.shape[0], (computed-data_output))
+
+    print("dW=", dW)
+    print("dB=", dB)
+
+    print("dW=", dW.shape)
+    print("dB=", dB.shape)
+
+    return dW, dB
 
 
 def numpy_libs(data_dict, weight_size):
@@ -80,6 +113,8 @@ def numpy_libs(data_dict, weight_size):
     data_input = np.array(data_input)
     data_output = np.array(data_output)
 
+    nn_parameters = {}
+
     # For manipulating Array dimensions
     # data_input = np.stack(data_input)
     # data_output = np.stack(data_output)
@@ -87,16 +122,23 @@ def numpy_libs(data_dict, weight_size):
     # data_input = np.prod(data_input, axis=1)
     # data_output = np.prod(data_output, axis=1)
 
-    print("DATA IN=", data_input)
-    print("DATA IN=", data_input.shape)
-    print("DATA OUT=", data_output)
-    print("DATA OUT=", data_output.shape)
+    # print("DATA IN=", data_input)
+    # print("DATA IN=", data_input.shape)
+    # print("DATA OUT=", data_output)
+    # print("DATA OUT=", data_output.shape)
 
-    weight_arr = generate_weights_np(weight_size)
-    bias_arr = generate_bias_np(weight_size)
+    # weight_arr = generate_weights_np(weight_size)
+    # bias_arr = generate_bias_np(weight_size)
+    # cost, A = forward_propagation_np(data_input, data_output, weight_arr, bias_arr)
 
-    Y = forward_propagation_np(data_input, data_output, weight_arr, bias_arr)
-    print("COST=", Y)
+    nn_parameters['weights'] = generate_weights_np(weight_size)
+    nn_parameters['bias'] = generate_bias_np(weight_size)
+    nn_parameters, cost_dict = forward_propagation_np(data_input, data_output, nn_parameters)
+
+    print("COST=", cost_dict)
+
+    ret = backward_propagation_np(data_input, data_output, nn_parameters)
+    # print("RET=", ret)
 
 
 if __name__ == '__main__':
