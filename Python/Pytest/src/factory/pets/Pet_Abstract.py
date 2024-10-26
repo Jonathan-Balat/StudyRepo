@@ -7,11 +7,6 @@ __all__ = ['PetAbstract']
 class PetAbstract(ABC):
 
     @abstractmethod
-    def __init__(self, name: str, age: int):
-        self.__name = name
-        self.__age = age
-
-    @abstractmethod
     def has_name(self):
         pass
 

@@ -1,14 +1,17 @@
-from Pet_Abstract import PetAbstract
+from .Pet_Abstract import PetAbstract
 
 
+# This limits what content can be imported from this file.
 __all__ = ['PetDog']
 
 
 class PetDog(PetAbstract):
 
-    def __init__(self, name, age):
-        super().__init__(name, age)
+    def __init__(self, name: str, age: int):
+        super().__init__()
 
+        self.__name = name
+        self.__age = age
         self.__sound = "Barks"
         self.__moves = ["Runs", "Walks"]
         self.__eats = "Dog food"

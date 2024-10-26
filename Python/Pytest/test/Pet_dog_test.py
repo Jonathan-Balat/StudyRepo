@@ -1,5 +1,5 @@
 import pytest
-from src.factory.pets.Pet_Dog import PetDog
+from src.factory.Pet_Factory_Class import PetFactory
 
 
 NAME:  str  = 'Doug'
@@ -11,7 +11,7 @@ EATS:  str  = "Dog food"
 
 @pytest.fixture
 def dog():
-    return PetDog(NAME, AGE)
+    return PetFactory.adopt_pet('dog', NAME, AGE)
 
 
 def test_class_instantiation(dog):
