@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 
+# This limits what content can be imported from this file.
+__all__ = ['PetAbstract']
+
 
 class PetAbstract(ABC):
 

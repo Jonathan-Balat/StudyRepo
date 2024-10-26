@@ -1,6 +1,9 @@
 from Pet_Abstract import PetAbstract
 
 
+__all__ = ['PetDog']
+
+
 class PetDog(PetAbstract):
 
     def __init__(self, name, age):
