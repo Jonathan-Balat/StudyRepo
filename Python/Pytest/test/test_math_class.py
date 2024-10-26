@@ -18,6 +18,6 @@ def test_class_fibo(MClass, test_num, test_val):
 
 @pytest.mark.parametrize("test_num, test_val", FIBO_SAMPLE_DATA)
 def test_class_fibo_improved(MClass, test_num, test_val):
-    assert MClass.fibbonacci_sequence_improved(test_num) == test_val
+    assert MClass.fibbonacci_sequence_lru(test_num) == test_val
 
 

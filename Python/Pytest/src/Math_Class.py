@@ -14,9 +14,9 @@ class MathClass(object):
         return val
 
     @lru_cache
-    def fibbonacci_sequence_improved(self, n):
+    def fibbonacci_sequence_lru(self, n):
         if n > 1:
-            val = self.fibbonacci_sequence_improved(n - 1) + self.fibbonacci_sequence_improved(n - 2)
+            val = self.fibbonacci_sequence_lru(n - 1) + self.fibbonacci_sequence_lru(n - 2)
         elif n > 0:
             val = 1
         else:
