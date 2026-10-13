@@ -1,0 +1,1 @@
+This subdirectory is focused on development and learning of Embedded C.
