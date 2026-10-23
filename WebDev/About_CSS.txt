@@ -1,0 +1,53 @@
+
+
+
+How to attach styles with CSS:
+1. Element Selector (Direct Tagging) - uses the tag name (eg. <body>) directly, which can style all tags.
+
+    <body> ... </body>
+    body { ... }
+
+
+2. Standard Attribute Selectors - using HTML Attributes to hook styles (eg. id, class, etc)
+
+    <!-- Example A: Using an ID -->
+   <body id="my-page-body"> ... </body>
+   #my-page-body {...}
+
+    <!-- Example A: Using a Class -->
+   <body class="my-page-body"> ... </body>
+   body.my-page-body {...} or .my-page-body {...}
+
+
+3. Advance Attribute Selectors - uses the attributes as selectors to certain tags that has it.
+
+    <!-- Example A: Data attribute for a dark theme -->
+    <body data-theme="dark"> ... </body>
+    body[data-theme="dark"] { ... }
+
+    <!-- Example B: Language attribute for Spanish -->
+    <body lang="es"> ... </body>
+    body[lang="es"] { ... }
+
+
+4. Inline Styles - when lazy to use a css file and using the style="" Attribute.
+
+    <body style="background-color: black; margin: 0;"> ... </body>
+
+
+5. Relational & Pseudo-class Selectors - Styles based on relationship to other elements, like selecting child in parent.
+
+    <!-- Example A: Standard document structure -->
+    <html>
+      <body> ... </body>
+    </html>
+
+    html > body { ... }
+
+    <!-- Example B: Body that currently contains an open modal popup -->
+    <body>
+      <div class="modal-open"></div>
+    </body>
+
+    body:has(.modal-open) { ... }
+
